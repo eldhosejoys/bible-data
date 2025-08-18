@@ -33,6 +33,15 @@ async function main() {
     chapterSummaryMap[summary.n] = summary.t;
   }
 
+  // Pre-calc verse counts
+  const bookVerseCount = {};
+  const chapterVerseCount = {};
+  for (const v of verses) {
+    const b = Number(v.b), c = Number(v.c);
+    bookVerseCount[b] = (bookVerseCount[b] || 0) + 1;
+    chapterVerseCount[`${b}-${c}`] = (chapterVerseCount[`${b}-${c}`] || 0) + 1;
+  }
+
   const totalVerses = verses.length;
   let processedVerses = 0;
 
@@ -53,7 +62,10 @@ async function main() {
       const enrichedVerse = {
         verse: verse.t,
         book: String(bookNum),
+        chapterCount: String(bookInfo.c || ""), 
         chapter: String(chapterNum),
+        verseCountInBook: String(bookVerseCount[bookNum] || ""),
+        verseCountInChapter: String(chapterVerseCount[`${bookNum}-${chapterNum}`] || ""),
         verseNumber: String(verseNum),
         bookNameMalayalam: bookInfo.bm || "",
         bookNameEnglish: bookInfo.be || "",
@@ -62,8 +74,7 @@ async function main() {
         dateInEnglish: bookInfo.de || "",
         dateInMalayalam: bookInfo.d || "",
         categoryInEnglish: bookInfo.cae || "",
-        categoryInMalayalam: bookInfo.ca || "",
-        bookSummary: bookSummary
+        categoryInMalayalam: bookInfo.ca || ""
       };
 
       fs.writeFileSync(verseFile, JSON.stringify(enrichedVerse, null, 2), "utf8");
@@ -73,9 +84,32 @@ async function main() {
     printProgress(processedVerses, totalVerses);
   }
 
-  console.log("\n✅ All verses processed, enriched, and saved!");
+  console.log("\n📖 Writing summary.json files...");
+  for (const info of chapterInfo) {
+    const b = info.n;
+    const summaryDir = path.join(outputDir, `${b}`);
+    ensureDir(summaryDir);
+
+    const summaryFile = path.join(summaryDir, "summary.json");
+    const summaryObj = {
+      summary: chapterSummaryMap[b] || "",
+      book: String(b),
+      chapterCount: String(info.c || ""),
+      verseCountInBook: String(bookVerseCount[b] || ""),
+      bookNameMalayalam: info.bm || "",
+      bookNameEnglish: info.be || "",
+      writerMalayalam: info.w || "",
+      writerEnglish: info.we || "",
+      dateInEnglish: info.de || "",
+      dateInMalayalam: info.d || "",
+      categoryInEnglish: info.cae || "",
+      categoryInMalayalam: info.ca || ""
+    };
+
+    fs.writeFileSync(summaryFile, JSON.stringify(summaryObj, null, 2), "utf8");
+  }
+
+  console.log("✅ All verses and summaries processed!");
 }
 
-main().catch(err => {
-  console.error("❌ Error:", err);
-});
+main().catch(err => console.error("❌ Error:", err));
