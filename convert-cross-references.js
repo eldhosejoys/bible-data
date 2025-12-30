@@ -107,11 +107,11 @@ try {
         if (toVerses.length === 0) continue;
 
         const crossRefObject = {
-            b: fromVerse.bookNum,
+            // b: fromVerse.bookNum, // no need actually to reduce size since saved as file name
             c: fromVerse.chapter,
             v: fromVerse.verse,
             to: toVerses,
-            votes: parseInt(columns[2], 10)
+            lyk: parseInt(columns[2], 10)
         };
 
         if (!groupedData[fromVerse.bookNum]) {
