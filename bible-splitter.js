@@ -4,7 +4,7 @@ const path = require("path");
 const inputFile = path.join(__dirname, "/bible/malayalam-bible.json");
 const chapterInfoFile = path.join(__dirname, "/bible-chapter-info.json");
 const chapterSummaryFile = path.join(__dirname, "/bible-chapter-summary.json");
-const outputDir = path.join(__dirname, "/api/malayalam-bible");
+const outputDir = path.join(__dirname, "data/api/malayalam-bible");
 
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -62,7 +62,7 @@ async function main() {
       const enrichedVerse = {
         verse: verse.t,
         book: String(bookNum),
-        chapterCount: String(bookInfo.c || ""), 
+        chapterCount: String(bookInfo.c || ""),
         chapter: String(chapterNum),
         verseCountInBook: String(bookVerseCount[bookNum] || ""),
         verseCountInChapter: String(chapterVerseCount[`${bookNum}-${chapterNum}`] || ""),

@@ -4,7 +4,7 @@ const path = require('path');
 // --- CONFIGURATION ---
 const abbrevsFilePath = path.join(__dirname, 'cross-references/abbrevs.json');
 const inputFilePath = path.join(__dirname, 'cross-references/cross_references.txt');
-const outputDir = path.join(__dirname, 'books-cross');
+const outputDir = path.join(__dirname, 'data/books-cross');
 
 // A Set to store all unique unknown abbreviations we find
 const unknownAbbrevs = new Set();
