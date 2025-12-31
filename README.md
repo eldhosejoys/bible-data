@@ -28,6 +28,8 @@ bible-data/
 
 Splits a complete Bible JSON file into individual verse files, enriched with metadata.
 
+**Source:** Bible database files are obtained from [VerseView Bible Database](http://verseview.info/vv/bible-database/)
+
 **Input:**
 - `bible/{language}-bible.json` - Complete Bible verses (e.g., `malayalam-bible.json`, `tamil-bible.json`)
 - `bible-chapter-info.json` - Book and chapter metadata
@@ -106,6 +108,8 @@ node split-headings.js
 ### 3. Convert Cross-References (`convert-cross-references.js`)
 
 Converts a tab-separated cross-references file into JSON format, organized by book.
+
+**Source:** Cross-reference data is obtained from [OpenBible.info Labs](https://www.openbible.info/labs/cross-references/)
 
 **Input:**
 - `cross-references/cross_references.txt` - Tab-separated cross-reference data
