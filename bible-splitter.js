@@ -1,10 +1,76 @@
 const fs = require("fs");
 const path = require("path");
+const readline = require("readline");
 
-const inputFile = path.join(__dirname, "/bible/malayalam-bible.json");
-const chapterInfoFile = path.join(__dirname, "/bible-chapter-info.json");
-const chapterSummaryFile = path.join(__dirname, "/bible-chapter-summary.json");
-const outputDir = path.join(__dirname, "data/api/malayalam-bible");
+const bibleDir = path.join(__dirname, "bible");
+const chapterInfoFile = path.join(__dirname, "bible-chapter-info.json");
+const chapterSummaryFile = path.join(__dirname, "bible-chapter-summary.json");
+
+/**
+ * Scans the bible folder and returns available languages
+ */
+function getAvailableLanguages() {
+  const files = fs.readdirSync(bibleDir);
+  const languages = files
+    .filter(file => file.endsWith("-bible.json"))
+    .map(file => file.replace("-bible.json", ""));
+  return languages;
+}
+
+/**
+ * Prompts user to select a language from available options
+ */
+function promptLanguageSelection(languages) {
+  return new Promise((resolve) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    console.log("\n📚 Available Bible Languages:\n");
+    languages.forEach((lang, index) => {
+      console.log(`  ${index + 1}. ${lang}`);
+    });
+    console.log();
+
+    rl.question("Select a language (enter number): ", (answer) => {
+      rl.close();
+      const index = parseInt(answer, 10) - 1;
+      if (index >= 0 && index < languages.length) {
+        resolve(languages[index]);
+      } else {
+        console.log("❌ Invalid selection. Using default: malayalam");
+        resolve("malayalam");
+      }
+    });
+  });
+}
+
+/**
+ * Gets the language from command line arg or prompts user
+ */
+async function getLanguage() {
+  // If language provided as argument, use it directly
+  if (process.argv[2]) {
+    return process.argv[2];
+  }
+
+  // Otherwise, scan bible folder and prompt user
+  const languages = getAvailableLanguages();
+
+  if (languages.length === 0) {
+    console.log("❌ No Bible files found in the 'bible' folder.");
+    console.log("   Expected format: {language}-bible.json");
+    process.exit(1);
+  }
+
+  if (languages.length === 1) {
+    console.log(`\n📖 Found only one Bible: ${languages[0]}`);
+    return languages[0];
+  }
+
+  return promptLanguageSelection(languages);
+}
 
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -16,6 +82,16 @@ function printProgress(current, total) {
 }
 
 async function main() {
+  // Get language selection (from arg or interactive prompt)
+  const language = await getLanguage();
+
+  const inputFile = path.join(bibleDir, `${language}-bible.json`);
+  const outputDir = path.join(__dirname, `data/api/${language}-bible`);
+
+  console.log(`\n🌐 Language: ${language}`);
+  console.log(`📂 Input: bible/${language}-bible.json`);
+  console.log(`📂 Output: data/api/${language}-bible/\n`);
+
   console.log("📖 Reading Bible JSON...");
   const verses = JSON.parse(fs.readFileSync(inputFile, "utf8"));
 
